@@ -1,11 +1,15 @@
+using libreria_MCLG.Data;
+using libreria_MCLG.Data.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
@@ -16,9 +20,11 @@ namespace libreria_MCLG
 {
 	public class Startup
 	{
+		public string ConnectionString { get; set; }
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
+			ConnectionString = Configuration.GetConnectionString("DefaultConnectionString");
 		}
 
 		public IConfiguration Configuration { get; }
@@ -28,6 +34,11 @@ namespace libreria_MCLG
 		{
 
 			services.AddControllers();
+			//Configurar DBcontext con SQL
+			services.AddDbContext<AppDbContext>(options => options.UseSqlServer(ConnectionString));
+
+			//configurar el servicio para que pueda ser mas usado
+			services.AddTransient<BookService>();
 			services.AddSwaggerGen(c =>
 			{
 				c.SwaggerDoc("v1", new OpenApiInfo { Title = "libreria_MCLG", Version = "v1" });
@@ -54,6 +65,7 @@ namespace libreria_MCLG
 			{
 				endpoints.MapControllers();
 			});
+			AppDbInitializer.Seed(app);
 		}
 	}
 }

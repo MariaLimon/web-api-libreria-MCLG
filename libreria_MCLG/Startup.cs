@@ -39,6 +39,8 @@ namespace libreria_MCLG
 
 			//configurar el servicio para que pueda ser mas usado
 			services.AddTransient<BookService>();
+			services.AddTransient<AuthorService>();
+			services.AddTransient<PublisherService>();
 			services.AddSwaggerGen(c =>
 			{
 				c.SwaggerDoc("v1", new OpenApiInfo { Title = "libreria_MCLG", Version = "v1" });
@@ -65,7 +67,7 @@ namespace libreria_MCLG
 			{
 				endpoints.MapControllers();
 			});
-			AppDbInitializer.Seed(app);
+			//AppDbInitializer.Seed(app);
 		}
 	}
 }

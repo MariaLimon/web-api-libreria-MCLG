@@ -30,10 +30,10 @@ namespace libreria_MCLG.Controllers
 			return Ok(book);
 		}
 
-		[HttpPost("add-book")]
+		[HttpPost("add-book-with-authors")]
 		public IActionResult AddBook([FromBody]BookVM book)
 		{
-			_bookService.AddBook(book);
+			_bookService.AddBookWithAuthors(book);
 			return Ok();
 		}
 

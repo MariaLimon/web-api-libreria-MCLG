@@ -16,8 +16,8 @@ namespace libreria_MCLG.Data.Services
             _context = context;
         }
 
-        //metodo para crear
-        public void AddBook(BookVM book)
+        //metodo para agregar un nuevo libro en la BD
+        public void AddBookWithAuthors(BookVM book)
         {
             var _book = new Book()
             {
@@ -27,17 +27,45 @@ namespace libreria_MCLG.Data.Services
                 DateRead = book.DateRead,
                 Rate = book.Rate,
                 Genero = book.Genero,
-                Autor = book.Autor,
                 CoverUrl = book.CoverUrl,
-                DateAdded = DateTime.Now
+                DateAdded = DateTime.Now,
+                PublisherId = book.PublisherID,
+          
             };
             _context.Books.Add(_book);
             _context.SaveChanges();
+
+            foreach(var id in book.AutorIDs)
+            {
+                var _book_author = new Book_Author()
+                {
+                    BookId = _book.id,
+                    AuthorId = id
+                };
+                _context.Book_Authors.Add(_book_author);
+                _context.SaveChanges();
+            }
         }
         //metodo para mostrar todos los libros
         public List<Book> GetAllBook() => _context.Books.ToList();
         //metodo para mostrar un libor especifico po id
-        public Book GetBooksById(int bookId) => _context.Books.FirstOrDefault(n => n.id == bookId);
+        public BookWithAuthorsVM GetBooksById(int bookId)
+        {
+            var _bookWithAuthors = _context.Books.Where(n => n.id == bookId).Select(book => new BookWithAuthorsVM()
+            {
+                Titulo = book.Titulo,
+                Descripcion = book.Descripcion,
+                IsRead = book.IsRead,
+                DateRead = book.DateRead,
+                Rate = book.Rate,
+                Genero = book.Genero,
+                CoverUrl = book.CoverUrl,
+                PublisherName = book.Publisher.Name,
+                AutorNames = book.Book_Authors.Select(n => n.Author.FullName).ToList()
+            }).FirstOrDefault();
+            return _bookWithAuthors;
+
+		}
         //metodo para modofocar un libro de la base de datos
         public Book UpdateBookByID(int bookid,BookVM book)
         {
@@ -50,7 +78,6 @@ namespace libreria_MCLG.Data.Services
                 _book.DateRead = book.DateRead;
                 _book.Rate = book.Rate;
                 _book.Genero = book.Genero;
-                _book.Autor = book.Autor;
                 _book.CoverUrl = book.CoverUrl;
 
                 _context.SaveChanges();
